@@ -1,8 +1,8 @@
-# Craft
+# Landfall Colony
 Top-down 2D colony builder (RimWorld-style) in Go + Ebitengine. Linux and Windows.
 
 Build: `make` (Linux needs X11/GL dev headers; Windows cross-builds with no extra tools).
-Run: `./craft [-seed N]`. Headless AI check: `make test`.
+Run: `./landfall [-seed N]`. Headless AI check: `make test`.
 
 Systems: colonist jobs (chop/mine/harvest/haul/build), hunger, sleep + beds, farming, deer hunting,
 wolf raids, seasons and temperature, rooms (walls + doors), fuel-burning heaters.
@@ -10,17 +10,17 @@ Controls: WASD pan, wheel zoom, tool bar / hotkeys 1-9,0,-,=,Backspace, Space pa
 
 Saving: L opens the save slots (autosave, quicksave and five numbered slots, with day and colonist count; overwriting asks twice). F5 quick save, F9 quick load, F10 load autosave. Autosaves every 2 minutes and on exit; the game
 continues from the autosave on launch (`-new` for a fresh world). Saves live in your user config dir
-(`~/.config/craft` on Linux, `%AppData%\craft` on Windows). `go test` checks the save/load round trip.
+(`~/.config/landfall` on Linux, `%AppData%\landfall` on Windows). `go test` checks the save/load round trip.
 
 Art and sound are generated in code at startup (pixel-art sprites in art.go, synthesised audio in sound.go),
-so there are no asset files. M mutes. `CRAFT_SHEET=sheet.png go test -run ArtSheet .` renders a sprite sheet.
+so there are no asset files. M mutes. `LANDFALL_SHEET=sheet.png go test -run ArtSheet .` renders a sprite sheet.
 
-Balance: `CRAFT_BALANCE=1 go test -run Balance -v` plays scripted strategies ("competent", "lazy") over several seeds
+Balance: `LANDFALL_BALANCE=1 go test -run Balance -v` plays scripted strategies ("competent", "lazy") over several seeds
 for 12 game days and prints survival, raid and death statistics. Use it after changing any tuning constant.
 
 Skills & economy: 7 skills (Combat, Construction, Mining, Farming, Medicine, Crafting, Engineering) that level by use or by
 studying at a Desk; traits and passions per colonist. B = build menu (workbench, desk, lamp, generator, solar panel, fabricator,
-electric heater), P = production targets, T = trade with visiting traders. `./craft -new -demo prod|trade|build|night` sets up a
+electric heater), P = production targets, T = trade with visiting traders. `./landfall -new -demo prod|trade|build|night` sets up a
 showcase colony for screenshots.
 
 Building materials: walls and doors can be wood (cheap, can burn), stone, or iron (mine Ore, smelt it at a Furnace; turn on Iron

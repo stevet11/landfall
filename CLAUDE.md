@@ -1,14 +1,14 @@
-# Craft
+# Landfall Colony
 
 Top-down 2D colony builder (RimWorld-style) in Go + Ebitengine v2. Runs on Linux and Windows.
 Everything (art, sound) is generated in code at startup: there are no asset files. Single `main` package.
 
 ## Working on it
 - Read `NEXT.md` first: it is the owner's to-do list. "Do the next item" means the top unchecked item under **Now**.
-- Build both targets: `make` (Linux `./craft`, Windows `craft.exe`; no cgo or extra tools needed for Windows).
+- Build both targets: `make` (Linux `./landfall`, Windows `landfall.exe`; no cgo or extra tools needed for Windows).
 - Tests: `go test .` (~2 min now; use `-run Name` for the area you changed, the whole suite in the background). `go vet` prints "unkeyed fields" warnings for the `col` alias in art.go; ignore those.
 - After touching balance-relevant numbers (hunger, wolves, cold, yields, costs, immigration):
-  `CRAFT_BALANCE=1 go test -run Balance -v -timeout 40m .` (about 1 minute). A "competent" scripted player should survive winter
+  `LANDFALL_BALANCE=1 go test -run Balance -v -timeout 40m .` (about 1 minute). A "competent" scripted player should survive winter
   with 0-2 deaths; a "lazy" one (no shelter) should die in winter. Tuning constants live in sim.go, animals.go, trader.go.
 - Always add or update a test for new behaviour; the sim is headless so most things can be tested without a window.
 - Keep the README and NEXT.md in step with what you build.
@@ -78,9 +78,9 @@ Everything (art, sound) is generated in code at startup: there are no asset file
   and an entry in `buildMenu` (ui2.go). Powered buildings also hook into `updatePower` in econ.go.
 
 ## Seeing the game
-- `./craft -new -seed 7 -demo prod|trade|build|night|nopower|banner|arrow|walls|fire|roof|weapons|crops|raid|move|sick|joy|rain|snow` sets up a showcase colony (window title
-  "Craft (demo)"). The user may be running their own game, titled "Craft", at the same time: capture only the demo window
-  (`xwininfo -name "Craft (demo)"` then `xwd -id`), and never touch their saves.
-- Saves are in `~/.config/craft/` (`autosave.sav`, `quicksave.sav`). `-new` starts fresh instead of continuing the autosave.
-- Sprite sheet: `CRAFT_SHEET=sheet.png go test -run ArtSheet .` Howl audio dump: `CRAFT_WAV=howl.wav go test -run DumpHowl .`
+- `./landfall -new -seed 7 -demo prod|trade|build|night|nopower|banner|arrow|walls|fire|roof|weapons|crops|raid|move|sick|joy|rain|snow` sets up a showcase colony (window title
+  "Landfall Colony (demo)"). The user may be running their own game, titled "Landfall Colony", at the same time: capture only the demo window
+  (`xwininfo -name "Landfall Colony (demo)"` then `xwd -id`), and never touch their saves.
+- Saves are in `~/.config/landfall/` (`autosave.sav`, `quicksave.sav`). `-new` starts fresh instead of continuing the autosave.
+- Sprite sheet: `LANDFALL_SHEET=sheet.png go test -run ArtSheet .` Howl audio dump: `LANDFALL_WAV=howl.wav go test -run DumpHowl .`
 - Put scratch files in the session scratchpad, not the project folder.

@@ -1,12 +1,12 @@
-all: craft craft.exe
+all: landfall landfall.exe
 
-craft:
-	go build -o craft .
+landfall:
+	go build -o landfall .
 
-craft.exe:
-	GOOS=windows GOARCH=amd64 go build -ldflags "-H=windowsgui -s -w" -o craft.exe .
+landfall.exe:
+	GOOS=windows GOARCH=amd64 go build -ldflags "-H=windowsgui -s -w" -o landfall.exe .
 
 test:
 	go run . -selftest
 
-.PHONY: all craft craft.exe test
+.PHONY: all landfall landfall.exe test

@@ -10,7 +10,7 @@ import (
 )
 
 // TestArtSheet renders every sprite to a PNG so the art can be eyeballed.
-// Set CRAFT_SHEET=path to write it.
+// Set LANDFALL_SHEET=path to write it.
 func TestArtSheet(t *testing.T) {
 	headlessArt = true
 	defer func() { headlessArt = false }()
@@ -25,7 +25,7 @@ func TestArtSheet(t *testing.T) {
 	if len(headlessSprites) < 60 {
 		t.Fatalf("only %d sprites", len(headlessSprites))
 	}
-	path := os.Getenv("CRAFT_SHEET")
+	path := os.Getenv("LANDFALL_SHEET")
 	if path == "" {
 		return
 	}

@@ -1,4 +1,4 @@
-module craft
+module landfall
 
 go 1.27.4
 

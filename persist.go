@@ -81,7 +81,7 @@ func saveDir() string {
 	if err != nil {
 		return "."
 	}
-	d = filepath.Join(d, "craft")
+	d = filepath.Join(d, "landfall")
 	_ = os.MkdirAll(d, 0o755)
 	return d
 }

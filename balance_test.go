@@ -10,7 +10,7 @@ import (
 )
 
 // Balance harness: scripted "players" of different skill play several seeds.
-// Run with CRAFT_BALANCE=1 go test -run Balance -v -timeout 30m
+// Run with LANDFALL_BALANCE=1 go test -run Balance -v -timeout 30m
 
 type strategy int
 
@@ -179,8 +179,8 @@ func play(seed int64, st strategy, days int) result {
 }
 
 func TestBalance(t *testing.T) {
-	if os.Getenv("CRAFT_BALANCE") == "" {
-		t.Skip("set CRAFT_BALANCE=1 to run")
+	if os.Getenv("LANDFALL_BALANCE") == "" {
+		t.Skip("set LANDFALL_BALANCE=1 to run")
 	}
 	days := 12
 	seeds := []int64{1, 2, 3, 4}

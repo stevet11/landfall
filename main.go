@@ -521,7 +521,7 @@ func (g *Game) drawUI(dst *ebiten.Image) {
 
 	if g.showHelp {
 		lines := []string{
-			"CRAFT - colony builder",
+			"LANDFALL COLONY",
 			"",
 			"WASD/arrows pan, Shift faster, wheel zoom, right-drag pan. Pick a tool, drag a rectangle.",
 			"Chop / Mine / Harvest: mark trees, rocks, bushes, and herbs (pale-green flowers = medicine).",
@@ -598,9 +598,9 @@ func main() {
 		g.setupDemo(*demo)
 	}
 	ebiten.SetWindowSize(1280, 760)
-	title := "Craft"
+	title := "Landfall Colony"
 	if *demo != "" {
-		title = "Craft (demo)"
+		title = "Landfall Colony (demo)"
 	}
 	ebiten.SetWindowTitle(title)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)

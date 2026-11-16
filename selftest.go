@@ -59,7 +59,7 @@ func selfTest(g *Game) {
 	}
 }
 
-// setupDemo builds a showcase colony for screenshots: ./craft -new -demo prod|trade|build|night
+// setupDemo builds a showcase colony for screenshots: ./landfall -new -demo prod|trade|build|night
 func (g *Game) setupDemo(kind string) {
 	s := g.start
 	put := func(o Obj, dx, dy int) {

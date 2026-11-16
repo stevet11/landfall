@@ -6,7 +6,7 @@ import (
 )
 
 func TestDumpHowl(t *testing.T) {
-	p := os.Getenv("CRAFT_WAV")
+	p := os.Getenv("LANDFALL_WAV")
 	if p == "" {
 		t.Skip()
 	}
