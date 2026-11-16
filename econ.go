@@ -88,10 +88,11 @@ var recipes = []Recipe{
 type ProdSetting struct {
 	On     bool
 	Target int
+	Urgent bool // worked ahead of building, roofing and other ordinary jobs
 }
 
 func defaultProd() []ProdSetting {
-	return []ProdSetting{{false, 10}, {false, 10}, {false, 6}, {false, 2}, {false, 12}, {false, 2}, {false, 1}, {false, 1}, {false, 40}, {false, 1}, {false, 1}, {false, 2}, {false, 6}, {false, 3}, {false, 20}, {false, 10}, {false, 16}}
+	return []ProdSetting{{Target: 10}, {Target: 10}, {Target: 6}, {Target: 2}, {Target: 12}, {Target: 2}, {Target: 1}, {Target: 1}, {Target: 40}, {Target: 1}, {Target: 1}, {Target: 2}, {Target: 6}, {Target: 3}, {Target: 20}, {Target: 10}, {Target: 16}}
 }
 
 func (g *Game) hasInputs(r Recipe) bool {
@@ -192,8 +193,11 @@ func itoa(n int) string {
 }
 
 // tryCraft finds a recipe that needs making and a bench to make it at.
-func (g *Game) tryCraft(c *Colonist) bool {
+func (g *Game) tryCraft(c *Colonist, urgentOnly bool) bool {
 	for i, r := range recipes {
+		if urgentOnly && !g.prod[i].Urgent {
+			continue
+		}
 		if !g.prod[i].On || g.stock[r.Out]+g.inProgress(i)*r.OutN >= g.prod[i].Target {
 			continue
 		}

@@ -431,6 +431,9 @@ func (g *Game) slow(dt float64) {
 	g.recompute()
 	for i := range g.W.T {
 		t := &g.W.T[i]
+		if t.Urgent && t.Desig == DNone && t.Blue == BNone {
+			t.Urgent = false // the order is done
+		}
 		if t.Obj == OHeater {
 			t.Fuel -= float32(dt)
 			if t.Fuel <= 0 {
@@ -870,16 +873,11 @@ func (g *Game) assignJob(c *Colonist) bool {
 		return true
 	}
 
-	if g.tryTarget(c, func(t *Tile, _, _ int, self bool) bool {
-		if t.Blue == BNone || t.ResT != 0 || t.MoveFrom != 0 {
-			return false
-		}
-		if self && solidBlue(t.Blue) {
-			return false
-		}
-		cost := t.blueCost()
-		return c.lvl(SEngineering) >= cost.MinEng && g.canAfford(cost)
-	}, func(tg pt, t *Tile) (Job, string) {
+	if g.tryUrgent(c) {
+		return true
+	}
+
+	if g.tryTarget(c, g.buildPred(c), func(tg pt, t *Tile) (Job, string) {
 		return Job{Kind: JBuild, Need: t.blueCost().Time}, "Going to build"
 	}) {
 		return true
@@ -949,35 +947,75 @@ func (g *Game) assignJob(c *Colonist) bool {
 		return true
 	}
 
-	if g.tryCraft(c) {
+	if g.tryCraft(c, false) {
 		return true
 	}
 
-	if g.tryTarget(c, func(t *Tile, _, _ int, self bool) bool {
-		return t.Desig != DNone && t.ResT == 0 && desigValid(t) && (t.Desig != DRoof || g.stock[IWood] >= roofWood)
-	}, func(tg pt, t *Tile) (Job, string) {
-		switch t.Desig {
-		case DChop:
-			return Job{Kind: JChop, Need: 3.5}, "Going to chop"
-		case DMine:
-			return Job{Kind: JMine, Need: 4.5}, "Going to mine"
-		case DRoof:
-			return Job{Kind: JRoof, Need: 1.2}, "Going to roof"
-		case DDecon:
-			need := 1.5
-			if b, ok := objBlue[t.Obj]; ok {
-				need = costFor(b, t.builtMat()).Time * 0.6
-			}
-			return Job{Kind: JDecon, Need: need}, "Going to dismantle"
-		}
-		return Job{Kind: JHarvest, Need: 1.5}, "Going to harvest"
-	}) {
+	if g.tryTarget(c, g.gatherPred(), g.gatherJob) {
 		return true
 	}
 	if g.tryPlay(c, false) { // nothing to do: have some fun
 		return true
 	}
 	return g.tryStudy(c)
+}
+
+// buildPred accepts a blueprint this colonist can start building now.
+func (g *Game) buildPred(c *Colonist) predFn {
+	return func(t *Tile, _, _ int, self bool) bool {
+		if t.Blue == BNone || t.ResT != 0 || t.MoveFrom != 0 {
+			return false
+		}
+		if self && solidBlue(t.Blue) {
+			return false
+		}
+		cost := t.blueCost()
+		return c.lvl(SEngineering) >= cost.MinEng && g.canAfford(cost)
+	}
+}
+
+// gatherPred accepts a tile with a pending chop, mine, harvest, roof or dismantle order.
+func (g *Game) gatherPred() predFn {
+	return func(t *Tile, _, _ int, self bool) bool {
+		return t.Desig != DNone && t.ResT == 0 && desigValid(t) && (t.Desig != DRoof || g.stock[IWood] >= roofWood)
+	}
+}
+
+// gatherJob makes the job for a tile accepted by gatherPred.
+func (g *Game) gatherJob(tg pt, t *Tile) (Job, string) {
+	switch t.Desig {
+	case DChop:
+		return Job{Kind: JChop, Need: 3.5}, "Going to chop"
+	case DMine:
+		return Job{Kind: JMine, Need: 4.5}, "Going to mine"
+	case DRoof:
+		return Job{Kind: JRoof, Need: 1.2}, "Going to roof"
+	case DDecon:
+		need := 1.5
+		if b, ok := objBlue[t.Obj]; ok {
+			need = costFor(b, t.builtMat()).Time * 0.6
+		}
+		return Job{Kind: JDecon, Need: need}, "Going to dismantle"
+	}
+	return Job{Kind: JHarvest, Need: 1.5}, "Going to harvest"
+}
+
+// tryUrgent does the orders the player marked urgent (Priority tool) and the recipes marked urgent in
+// the production panel before any ordinary work.
+func (g *Game) tryUrgent(c *Colonist) bool {
+	bp, gp := g.buildPred(c), g.gatherPred()
+	if g.tryTarget(c, func(t *Tile, x, y int, self bool) bool {
+		return t.Urgent && (bp(t, x, y, self) || gp(t, x, y, self))
+	}, func(tg pt, t *Tile) (Job, string) {
+		if t.Blue != BNone {
+			return Job{Kind: JBuild, Need: t.blueCost().Time}, "Going to build (urgent)"
+		}
+		j, st := g.gatherJob(tg, t)
+		return j, st + " (urgent)"
+	}) {
+		return true
+	}
+	return g.tryCraft(c, true)
 }
 
 func (g *Game) release(c *Colonist) {
@@ -1658,6 +1696,7 @@ const (
 	TRoof
 	TDeconstruct
 	TErase
+	TPriority
 	numTools
 )
 
@@ -1667,6 +1706,10 @@ func (g *Game) applyTool(tool Tool, x0, y0, x1, y1 int) {
 	}
 	if y0 > y1 {
 		y0, y1 = y1, y0
+	}
+	if tool == TPriority {
+		g.setPriority(x0, y0, x1, y1)
+		return
 	}
 	if tool == THunt || tool == TErase {
 		for _, a := range g.animals {
@@ -1739,7 +1782,7 @@ func (g *Game) applyTool(tool Tool, x0, y0, x1, y1 int) {
 					t.Blue, t.BlueKind = BFloor, g.floorSel // (laying a different floor over an old one replaces it)
 				}
 			case TErase:
-				t.Desig, t.Blue, t.Zone, t.Farm, t.Crop = DNone, BNone, false, false, false
+				t.Desig, t.Blue, t.Zone, t.Farm, t.Crop, t.Urgent = DNone, BNone, false, false, false, false
 				if t.MoveTo != 0 {
 					g.cancelMoveFrom(y*MapW + x)
 				}
@@ -1983,5 +2026,36 @@ func (g *Game) rescueItems() {
 		it, n := t.Item, t.ItemN
 		t.Item, t.ItemN = INone, 0
 		g.placeItem(i%MapW, i/MapW, it, n)
+	}
+}
+
+// setPriority marks every order and blueprint in the rectangle urgent, or, when they all already are,
+// takes the mark off again.
+func (g *Game) setPriority(x0, y0, x1, y1 int) {
+	var orders []*Tile
+	allUrgent := true
+	for y := y0; y <= y1; y++ {
+		for x := x0; x <= x1; x++ {
+			t := g.W.At(x, y)
+			if t == nil || !(t.Blue != BNone || (t.Desig != DNone && desigValid(t))) {
+				continue
+			}
+			orders = append(orders, t)
+			allUrgent = allUrgent && t.Urgent
+		}
+	}
+	switch {
+	case len(orders) == 0:
+		g.msg("Nothing to prioritise there: drag over orders or blueprints.")
+	case allUrgent:
+		for _, t := range orders {
+			t.Urgent = false
+		}
+		g.msg("%d orders back to normal priority.", len(orders))
+	default:
+		for _, t := range orders {
+			t.Urgent = true
+		}
+		g.msg("%d orders marked urgent: colonists do them first.", len(orders))
 	}
 }

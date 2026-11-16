@@ -393,7 +393,7 @@ func TestSaveKeepsSkillsTraitsAndSettings(t *testing.T) {
 	g.cols[0].Skills[SMedicine] = SkillState{Level: 9, XP: 12, Passion: true}
 	g.cols[0].Traits = []Trait{TrHardy, TrCharming}
 	g.cols[0].Focus = SEngineering
-	g.prod[1] = ProdSetting{true, 17}
+	g.prod[1] = ProdSetting{On: true, Target: 17}
 	path := t.TempDir() + "/s.sav"
 	if err := g.SaveFile(path); err != nil {
 		t.Fatal(err)
@@ -406,7 +406,7 @@ func TestSaveKeepsSkillsTraitsAndSettings(t *testing.T) {
 	if c.Skills[SMedicine] != (SkillState{Level: 9, XP: 12, Passion: true}) || !c.has(TrHardy) || !c.has(TrCharming) || c.Focus != SEngineering {
 		t.Fatalf("skills/traits lost: %+v %v %v", c.Skills, c.Traits, c.Focus)
 	}
-	if h.prod[1] != (ProdSetting{true, 17}) {
+	if h.prod[1] != (ProdSetting{On: true, Target: 17}) {
 		t.Fatalf("production settings lost: %+v", h.prod)
 	}
 }

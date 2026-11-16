@@ -92,6 +92,16 @@ func (g *Game) setupDemo(kind string) {
 	switch kind {
 	case "prod":
 		g.panel = panelProd
+		g.prod[1].On, g.prod[1].Urgent = true, true
+	case "urgent": // orders marked urgent
+		for dx := 0; dx < 4; dx++ {
+			t := g.W.At(s.x-4+dx, s.y+4)
+			t.Ground, t.Obj = GGrass, ONone
+			t.Blue = BBed
+			g.W.At(s.x-4+dx, s.y+6).Desig = DRoof
+		}
+		g.applyTool(TPriority, s.x-4, s.y+4, s.x-3, s.y+4)
+		g.applyTool(TPriority, s.x-4, s.y+6, s.x-2, s.y+6)
 	case "trade":
 		g.nextTrader = 0
 		g.spawnTrader()

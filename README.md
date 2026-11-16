@@ -20,7 +20,7 @@ for 12 game days and prints survival, raid and death statistics. Use it after ch
 
 Skills & economy: 7 skills (Combat, Construction, Mining, Farming, Medicine, Crafting, Engineering) that level by use or by
 studying at a Desk; traits and passions per colonist. B = build menu (workbench, desk, lamp, generator, solar panel, fabricator,
-electric heater), P = production targets, T = trade with visiting traders. `./landfall -new -demo prod|trade|build|night` sets up a
+electric heater), P = production targets, T = trade with visiting traders. Press "!" on a production row, or use the Priority tool (U) on orders and blueprints, to have colonists do them first. `./landfall -new -demo prod|trade|build|night` sets up a
 showcase colony for screenshots.
 
 Building materials: walls and doors can be wood (cheap, can burn), stone, or iron (mine Ore, smelt it at a Furnace; turn on Iron

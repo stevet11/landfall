@@ -323,6 +323,7 @@ func (g *Game) buttons() []btn {
 			bs = append(bs,
 				btn{x: x + w - 70*s, y: ry, w: 60 * s, h: 28 * s, label: map[bool]string{true: "ON", false: "OFF"}[g.prod[i].On], active: g.prod[i].On,
 					fn: func() { g.prod[i].On = !g.prod[i].On }},
+				btn{x: x + w - 222*s, y: ry, w: 28 * s, h: 28 * s, label: "!", active: g.prod[i].Urgent, fn: func() { g.prod[i].Urgent = !g.prod[i].Urgent }},
 				btn{x: x + w - 190*s, y: ry, w: 28 * s, h: 28 * s, label: "-", fn: func() {
 					st := 1
 					if g.shift() {
@@ -553,7 +554,7 @@ func (g *Game) drawPanels(dst *ebiten.Image) {
 		rect(dst, x, y, w, h, bg)
 		strokeRect(dst, x, y, w, h, 2, color.NRGBA{100, 110, 140, 255})
 		g.text(dst, "Production", x+12*s, y+8*s, g.fontM, white)
-		g.text(dst, "Idle colonists make these at benches until stock reaches the target. Shift = step of 5.", x+12*s, y+34*s, g.fontS, dim)
+		g.text(dst, "Idle colonists make these at benches until stock reaches the target. Shift = step of 5. ! = do it before other work.", x+12*s, y+34*s, g.fontS, dim)
 		for i, r := range recipes {
 			ry := y + (62+float64(i)*30)*s
 			in := fmt.Sprintf("%d %s", r.N1, itemNames[r.In1])
@@ -571,7 +572,7 @@ func (g *Game) drawPanels(dst *ebiten.Image) {
 				sc = color.NRGBA{255, 170, 120, 255}
 			}
 			g.text(dst, fmt.Sprintf("have %d / target %d", g.stock[r.Out], g.prod[i].Target), x+w-prodStatsX*s, ry-2*s, g.fontS, white)
-			g.text(dst, g.fit(st, (prodStatsX-200)*s, g.fontS), x+w-prodStatsX*s, ry+16*s, g.fontS, sc)
+			g.text(dst, g.fit(st, (prodStatsX-232)*s, g.fontS), x+w-prodStatsX*s, ry+16*s, g.fontS, sc)
 		}
 	case panelTrade:
 		x, y, w, h := g.modalRect()

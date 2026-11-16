@@ -74,6 +74,7 @@ var toolInfo = [numTools]struct {
 	{"Roof", ebiten.KeyR, "R", color.NRGBA{200, 140, 90, 255}},
 	{"Salvage", ebiten.KeyX, "X", color.NRGBA{230, 110, 90, 255}},
 	{"Erase", ebiten.KeyBackspace, "", color.NRGBA{220, 80, 200, 255}},
+	{"Priority", ebiten.KeyU, "U", color.NRGBA{255, 90, 60, 255}},
 }
 
 func (g *Game) initUI() {
@@ -536,7 +537,7 @@ func (g *Game) drawUI(dst *ebiten.Image) {
 			"Weapons: forge blades at a workbench (iron), guns and ammo at a fabricator. Colonists equip the best one automatically.",
 			"Move (V): click a furnace, desk, bed or machine, then click a free spot: colonists carry it there, nothing lost.",
 			"Roof (R): costs wood. Roofs make walled rooms warm and keep food from spoiling. Salvage (X) removes buildings, floors, roofs.",
-			"B: build menu (workbench, desk, lamp, generator, solar, fabricator). P: production targets. T: trade.",
+			"B: build menu (workbench, desk, lamp, generator, solar, fabricator). P: production targets (! = urgent). T: trade. U: mark orders urgent.",
 			"Colonists learn by working; click a skill in their panel to train it at a Desk. Books from traders help.",
 			"Right-click / Esc: cancel   Space: pause   Tab: speed   F11: fullscreen   H: help",
 			"F5: quick save   F9: quick load   F10: load autosave (autosaves every 2 min and on exit)   L: save slots   M: mute",

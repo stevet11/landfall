@@ -207,6 +207,7 @@ type Tile struct {
 	Grow      float32
 	Fuel      float32
 	Desig     Desig
+	Urgent    bool // the order or blueprint here is worked before ordinary jobs (Priority tool)
 	Blue      Blue
 	Item      Item
 	ItemN     int

@@ -44,7 +44,7 @@ Everything (art, sound) is generated in code at startup: there are no asset file
   `g.alert` (25 s, gold, for things the player must not miss).
 - Resources only count when they lie in a **Stockpile** (Zone) tile (`g.stock`). Loose items are hauled there.
   Building and crafting take materials straight from the stockpile.
-- Colonists pick jobs in the order in `assignJob`: eat, tend wounds, recover, sleep, warm up, build, haul, reap, sow, hunt,
+- Colonists pick jobs in the order in `assignJob`: eat, tend wounds, recover, sleep, warm up, **urgent** (`tryUrgent`: orders flagged `Tile.Urgent` by the Priority tool, then recipes with `ProdSetting.Urgent`), build, haul, reap, sow, hunt,
   craft, gather (chop/mine/harvest/salvage), study. Reservations (`ResT`/`ResD`/`ResI`) must be released on every exit path.
 - One game day is 300 s (`DayLen`), a year is 10 days; winter is the real threat and requires a heated room.
 - Enum values are saved in files: append new Obj/Blue/Item/Desig values, never reorder. When the save format changes,
@@ -78,7 +78,7 @@ Everything (art, sound) is generated in code at startup: there are no asset file
   and an entry in `buildMenu` (ui2.go). Powered buildings also hook into `updatePower` in econ.go.
 
 ## Seeing the game
-- `./landfall -new -seed 7 -demo prod|trade|build|night|nopower|banner|arrow|walls|fire|roof|weapons|crops|raid|move|sick|joy|rain|snow` sets up a showcase colony (window title
+- `./landfall -new -seed 7 -demo prod|trade|build|night|nopower|banner|arrow|walls|fire|roof|weapons|crops|raid|move|sick|joy|rain|snow|saves|urgent` sets up a showcase colony (window title
   "Landfall Colony (demo)"). The user may be running their own game, titled "Landfall Colony", at the same time: capture only the demo window
   (`xwininfo -name "Landfall Colony (demo)"` then `xwd -id`), and never touch their saves.
 - Saves are in `~/.config/landfall/` (`autosave.sav`, `quicksave.sav`). `-new` starts fresh instead of continuing the autosave.

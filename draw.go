@@ -373,6 +373,9 @@ func (g *Game) Draw(dst *ebiten.Image) {
 				c.A = 45
 				rect(dst, sx, sy, sz, sz, c)
 			}
+			if t.Urgent && (t.Blue != BNone || (t.Desig != DNone && desigValid(t))) {
+				g.drawUrgentMark(dst, sx+sz*0.62, sy+sz*0.04, sz*0.34)
+			}
 		}
 	}
 
@@ -661,6 +664,9 @@ func (g *Game) toolIcon(dst *ebiten.Image, t Tool, x, y, size float64) {
 			vs[i].ColorR, vs[i].ColorG, vs[i].ColorB, vs[i].ColorA = 1, 1, 1, 1
 		}
 		dst.DrawTriangles(vs, is, emptyImage(), &ebiten.DrawTrianglesOptions{})
+		return
+	case TPriority:
+		g.drawUrgentMark(dst, x+size*0.1, y+size*0.1, size*0.8)
 		return
 	case TErase:
 		vector.StrokeLine(dst, float32(x+size*0.15), float32(y+size*0.15), float32(x+size*0.85), float32(y+size*0.85), 3, color.NRGBA{230, 90, 210, 255}, true)
@@ -954,4 +960,12 @@ func (g *Game) drawWeather(dst *ebiten.Image) {
 		l := (9 + 8*frac(i, 4)) * s
 		vector.StrokeLine(dst, float32(x), float32(y), float32(x-l*0.25), float32(y+l), 1, color.NRGBA{170, 195, 235, uint8(90 + 90*frac(i, 5))}, false)
 	}
+}
+
+// drawUrgentMark paints a red badge with an exclamation mark in a size x size box at x, y.
+func (g *Game) drawUrgentMark(dst *ebiten.Image, x, y, size float64) {
+	vector.FillCircle(dst, float32(x+size/2), float32(y+size/2), float32(size/2), color.NRGBA{225, 50, 40, 255}, true)
+	vector.StrokeCircle(dst, float32(x+size/2), float32(y+size/2), float32(size/2), 1, color.NRGBA{255, 230, 200, 255}, true)
+	rect(dst, x+size*0.44, y+size*0.2, size*0.12, size*0.38, color.White)
+	rect(dst, x+size*0.44, y+size*0.67, size*0.12, size*0.12, color.White)
 }
