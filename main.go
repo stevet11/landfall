@@ -39,6 +39,8 @@ type ui struct {
 	slots            []SaveSlot // what the Saves panel lists
 	saveArmed        int        // slot (1-based) waiting for a second click to overwrite
 	tradeScroll      int
+	sellRows         []Item // trade rows as listed since the window opened (see tradeSellItems)
+	buyRows          []Item
 	nightLayer       *ebiten.Image
 	rpX, rpY         float64 // where the right button went down
 	rpActive         bool    // a right-button gesture is in progress
@@ -183,6 +185,10 @@ func (g *Game) Update() error {
 	}
 	for len(g.msgs) > 0 && g.msgs[0].T <= 0 {
 		g.msgs = g.msgs[1:]
+	}
+
+	if g.panel != panelTrade {
+		g.sellRows, g.buyRows = nil, nil // the next visit lists afresh
 	}
 
 	// keys

@@ -927,3 +927,47 @@ func TestTooltipHelpersDescribeCropsAndRooms(t *testing.T) {
 		t.Fatal("open ground has no room tip")
 	}
 }
+
+func TestTradeRowsDoNotShiftWhileTheWindowIsOpen(t *testing.T) {
+	g := quiet(7)
+	g.sw, g.sh, g.scale = 1280, 760, 1
+	g.addToStock(IFood, 3)
+	g.addToStock(IMedicine, 2)
+	g.addToStock(ICarving, 4)
+	g.panel = panelTrade
+	rows := append([]Item(nil), g.tradeSellItems()...)
+	pos := func(it Item) int {
+		for i, r := range g.tradeSellItems() {
+			if r == it {
+				return i
+			}
+		}
+		return -1
+	}
+	was := pos(ICarving)
+	g.takeStock(IFood, g.stock[IFood]) // sold out: the row above stays put
+	g.recompute()
+	if pos(ICarving) != was || len(g.tradeSellItems()) != len(rows) {
+		t.Fatalf("rows moved: %v -> %v", rows, g.tradeSellItems())
+	}
+	disabled := 0
+	for _, b := range g.buttons() {
+		if (b.label == "Sell 1" || b.label == "Sell 10") && b.disabled {
+			disabled++
+		}
+	}
+	if disabled != 2 {
+		t.Fatalf("a sold-out row has its two buttons off, got %d", disabled)
+	}
+	g.addToStock(IRifle, 1) // something new appears: at the bottom
+	if l := g.tradeSellItems(); l[len(l)-1] != IRifle || pos(ICarving) != was {
+		t.Fatalf("new items join at the end: %v", l)
+	}
+	// closing the window starts the list afresh (done each frame by Update)
+	g.sellRows, g.buyRows = nil, nil
+	for _, it := range g.tradeSellItems() {
+		if it == IFood {
+			t.Fatal("sold-out items are gone on the next visit")
+		}
+	}
+}

@@ -120,28 +120,35 @@ func (g *Game) curMat() Material {
 	return g.wallMat
 }
 
-// tradeSellItems and tradeBuyItems are the rows of the two trade lists.
+// tradeSellItems and tradeBuyItems are the rows of the two trade lists. While the trade window is
+// open a row never moves: an item that sells out stays in its place (greyed out, buttons off) and
+// anything new is added at the bottom, so the list can't shift under the cursor between a glance
+// and a click. The lists start afresh each time the window is opened.
 func (g *Game) tradeSellItems() []Item {
-	var l []Item
-	for it := IWood; it < numItems; it++ {
-		if it != ISilver && g.stock[it] > 0 {
-			l = append(l, it)
-		}
-	}
-	return l
+	g.sellRows = mergeRows(g.sellRows, func(it Item) bool { return g.stock[it] > 0 })
+	return g.sellRows
 }
 
 func (g *Game) tradeBuyItems() []Item {
-	var l []Item
 	if g.trader == nil {
-		return l
+		return nil
+	}
+	g.buyRows = mergeRows(g.buyRows, func(it Item) bool { return g.trader.Stock[it] > 0 })
+	return g.buyRows
+}
+
+// mergeRows keeps the rows already listed and appends items that have just become available.
+func mergeRows(rows []Item, avail func(Item) bool) []Item {
+	have := map[Item]bool{}
+	for _, it := range rows {
+		have[it] = true
 	}
 	for it := IWood; it < numItems; it++ {
-		if it != ISilver && g.trader.Stock[it] > 0 {
-			l = append(l, it)
+		if it != ISilver && !have[it] && avail(it) {
+			rows = append(rows, it)
 		}
 	}
-	return l
+	return rows
 }
 
 // tradeVisible is how many rows fit in the window; the lists scroll with the mouse wheel.
@@ -158,16 +165,7 @@ func (g *Game) scrollTrade(delta int) {
 
 // tradeRows is how many rows the trade window needs: the longer of the two lists.
 func (g *Game) tradeRows() int {
-	sell, buy := 0, 0
-	for it := IWood; it < numItems; it++ {
-		if it != ISilver && g.stock[it] > 0 {
-			sell++
-		}
-		if g.trader != nil && it != ISilver && g.trader.Stock[it] > 0 {
-			buy++
-		}
-	}
-	return max(4, sell, buy)
+	return max(4, len(g.tradeSellItems()), len(g.tradeBuyItems()))
 }
 
 func (g *Game) selectedColonist() *Colonist {
@@ -353,8 +351,8 @@ func (g *Game) buttons() []btn {
 			}
 			ry := y + (84+float64(row)*24)*s
 			bs = append(bs,
-				btn{x: x + colW - 110*s, y: ry, w: 50 * s, h: 22 * s, label: "Sell 1", fn: func() { g.sellItem(it, 1) }},
-				btn{x: x + colW - 56*s, y: ry, w: 56 * s, h: 22 * s, label: "Sell 10", fn: func() { g.sellItem(it, 10) }})
+				btn{x: x + colW - 110*s, y: ry, w: 50 * s, h: 22 * s, label: "Sell 1", disabled: g.stock[it] == 0, fn: func() { g.sellItem(it, 1) }},
+				btn{x: x + colW - 56*s, y: ry, w: 56 * s, h: 22 * s, label: "Sell 10", disabled: g.stock[it] == 0, fn: func() { g.sellItem(it, 10) }})
 		}
 		for row, it := range g.tradeBuyItems() {
 			it := it
@@ -365,8 +363,8 @@ func (g *Game) buttons() []btn {
 			ry := y + (84+float64(row)*24)*s
 			bx := x + w/2 + 8*s
 			bs = append(bs,
-				btn{x: bx + colW - 108*s, y: ry, w: 48 * s, h: 22 * s, label: "Buy 1", fn: func() { g.buyItem(it, 1) }},
-				btn{x: bx + colW - 54*s, y: ry, w: 54 * s, h: 22 * s, label: "Buy 5", fn: func() { g.buyItem(it, 5) }})
+				btn{x: bx + colW - 108*s, y: ry, w: 48 * s, h: 22 * s, label: "Buy 1", disabled: g.trader.Stock[it] == 0, fn: func() { g.buyItem(it, 1) }},
+				btn{x: bx + colW - 54*s, y: ry, w: 54 * s, h: 22 * s, label: "Buy 5", disabled: g.trader.Stock[it] == 0, fn: func() { g.buyItem(it, 5) }})
 		}
 	case panelFloor:
 		x, y, w, _ := g.floorPaletteRect()
@@ -594,7 +592,11 @@ func (g *Game) drawPanels(dst *ebiten.Image) {
 			}
 			ry := y + (84+float64(row)*24)*s
 			g.blit(dst, art.item[it], x+8*s, ry-5*s, 24*s, false, 1)
-			g.text(dst, fmt.Sprintf("%s x%d  %d each", itemNames[it], g.stock[it], g.sellPrice(it)), x+38*s, ry+2*s, g.fontS, white)
+			c := white
+			if g.stock[it] == 0 {
+				c = color.Color(color.NRGBA{120, 126, 140, 255})
+			}
+			g.text(dst, fmt.Sprintf("%s x%d  %d each", itemNames[it], g.stock[it], g.sellPrice(it)), x+38*s, ry+2*s, g.fontS, c)
 		}
 		if len(sells) == 0 {
 			g.text(dst, "(nothing to sell)", x+12*s, y+90*s, g.fontS, dim)
@@ -607,7 +609,11 @@ func (g *Game) drawPanels(dst *ebiten.Image) {
 			ry := y + (84+float64(row)*24)*s
 			bx := x + w/2 + 8*s
 			g.blit(dst, art.item[it], bx, ry-5*s, 24*s, false, 1)
-			g.text(dst, fmt.Sprintf("%s x%d  %d each", itemNames[it], g.trader.Stock[it], g.buyPrice(it)), bx+30*s, ry+2*s, g.fontS, white)
+			c := white
+			if g.trader.Stock[it] == 0 {
+				c = color.Color(color.NRGBA{120, 126, 140, 255})
+			}
+			g.text(dst, fmt.Sprintf("%s x%d  %d each", itemNames[it], g.trader.Stock[it], g.buyPrice(it)), bx+30*s, ry+2*s, g.fontS, c)
 		}
 		if g.tradeRows() > vis {
 			g.text(dst, fmt.Sprintf("Scroll the mouse wheel for more (%d-%d of %d)", g.tradeScroll+1, min(g.tradeScroll+vis, g.tradeRows()), g.tradeRows()), x+12*s, y+h-20*s, g.fontS, color.NRGBA{255, 235, 150, 255})

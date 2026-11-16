@@ -20,6 +20,7 @@ Top item under **Now** is what to work on next.
   Re-run the balance simulation after changing tuning numbers (see CLAUDE.md).
 
 ## Done
+- [x] Trade window rows no longer move while it is open: sold-out items stay in place greyed out (buttons off), new items join at the bottom, so you can't click the wrong row
 - [x] Save slots: L opens a Saves panel with the autosave, the quicksave and five numbered slots, each showing season, day, colonist count and when it was saved; Save (asks twice before overwriting) and Load buttons
 - [x] Fixed: colonists never picked up pistols and rifles because swords and knives scored higher; guns now count for their range, so rifles beat swords and pistols beat knives and axes (while there is ammo)
 - [x] Weather: spells of rain (warm) or snow (cold) with falling-weather graphics, a rain sound and "Rain"/"Snow" in the top bar; rain waters outdoor crops, puts out fires, dims solar panels, spoils unroofed food faster; people outdoors get colder and slower (roofs and rooms keep them dry)
