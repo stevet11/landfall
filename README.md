@@ -60,3 +60,7 @@ Joy: colonists need some fun. Joy drains slowly; below 50 it slows work, and a c
 Build a Horseshoe pit, a Checkers table (two players enjoy it more) or a Meditation shrine (needs a Sculpture; leaves a calm that speeds up
 work) from the Build menu. Colonists with low spirits drop their work to play, and idle ones play when they are not fully happy. A good meal
 helps too. No games are played while there is danger about.
+
+## License and builds
+MIT, see `LICENSE`. GitHub Actions (`.github/workflows/build.yml`) vets and tests every push and pull request and builds Linux and Windows
+(amd64) downloads; pushing a tag such as `v0.1.0` also publishes them as a GitHub release.

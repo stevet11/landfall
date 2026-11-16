@@ -1,0 +1,88 @@
+name: build
+
+on:
+  push:
+    branches: [master, main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Linux build dependencies
+        run: sudo apt-get update && sudo apt-get install -y libc6-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev libasound2-dev pkg-config xvfb
+      - run: go vet -composites=false ./... # (the col alias in art.go would give "unkeyed fields" warnings)
+      - run: xvfb-run -a go test -timeout 20m .
+
+  build:
+    needs: test
+    strategy:
+      matrix:
+        include:
+          - name: linux
+            goos: linux
+            binary: landfall
+            archive: tar.gz
+          - name: windows
+            goos: windows
+            binary: landfall.exe
+            archive: zip
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Linux build dependencies
+        if: matrix.goos == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y libc6-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev libasound2-dev pkg-config
+      - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: amd64
+        run: |
+          if [ "$GOOS" = windows ]; then
+            go build -ldflags "-H=windowsgui -s -w" -o ${{ matrix.binary }} .
+          else
+            go build -ldflags "-s -w" -o ${{ matrix.binary }} .
+          fi
+      - name: Package
+        run: |
+          name=landfall-colony-${{ matrix.name }}-amd64
+          mkdir "$name"
+          cp ${{ matrix.binary }} README.md LICENSE "$name"/
+          if [ "${{ matrix.archive }}" = zip ]; then
+            zip -r "$name.zip" "$name"
+          else
+            tar czf "$name.tar.gz" "$name"
+          fi
+          echo "ASSET=$name.${{ matrix.archive }}" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: landfall-colony-${{ matrix.name }}
+          path: ${{ env.ASSET }}
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
