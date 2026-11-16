@@ -29,6 +29,7 @@ Everything (art, sound) is generated in code at startup: there are no asset file
 | joy.go | Joy need, games, meditation, sulking |
 | disease.go | Illness, contagion, outbreaks, food poisoning, nursing |
 | animals.go | Deer, wolves, spawning on reachable land (`landmass`) |
+| gameover.go | Game over when all colonists die (`checkGameOver`), the window, `restart` |
 | saves.go | Save slots (autosave, quicksave, five numbered): slot info, `saveSlot`/`loadSlot`; the Saves panel (L) lives in ui2.go |
 | persist.go | Save/load (gob + gzip), `saveVersion` |
 | art.go, art2.go, art3.go, art5.go | Procedural pixel-art sprites (32x32 canvases) |

@@ -152,6 +152,8 @@ type Game struct {
 	msgs                                 []Msg
 	onEvent                              func(name string, x, y float64)
 	stats                                Stats
+	over                                 bool // every colonist is dead: the game is finished
+	overDay                              int
 	fullWarn                             float64
 	land                                 []bool
 	buildSel                             Blue
@@ -562,6 +564,7 @@ func (g *Game) step(dt float64) {
 		}
 	}
 	g.cols = alive
+	g.checkGameOver()
 	aa := g.animals[:0]
 	for _, a := range g.animals {
 		if !a.Dead {

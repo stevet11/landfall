@@ -20,6 +20,7 @@ Top item under **Now** is what to work on next.
   Re-run the balance simulation after changing tuning numbers (see CLAUDE.md).
 
 ## Done
+- [x] Game over: when the last colonist dies the sim stops and a window offers a new colony (R, Enter or the button); the autosave is never overwritten by a dead colony
 - [x] Priorities: a "!" button on each production row makes that recipe be worked before building and roofing; the Priority tool (U) marks orders and blueprints urgent (red badge) so colonists do them first; drag again to clear
 - [x] Trade window rows no longer move while it is open: sold-out items stay in place greyed out (buttons off), new items join at the bottom, so you can't click the wrong row
 - [x] Save slots: L opens a Saves panel with the autosave, the quicksave and five numbered slots, each showing season, day, colonist count and when it was saved; Save (asks twice before overwriting) and Load buttons

@@ -184,6 +184,7 @@ func (g *Game) apply(sd *saveData) {
 	g.start = pt{sd.Start[0], sd.Start[1]}
 	g.land = nil
 	g.cols, g.animals = nil, nil
+	g.over = false
 	for _, s := range sd.Cols {
 		nc := &Colonist{
 			ID: s.ID, Name: s.Name, X: s.X, Y: s.Y, Hunger: s.Hunger, Rest: s.Rest,

@@ -8,6 +8,8 @@ Systems: colonist jobs (chop/mine/harvest/haul/build), hunger, sleep + beds, far
 wolf raids, seasons and temperature, rooms (walls + doors), fuel-burning heaters.
 Controls: WASD pan, wheel zoom, tool bar / hotkeys 1-9,0,-,=,Backspace, Space pause, Tab speed, H help.
 
+Game over: when every colonist is dead the game stops and offers a new colony (R, Enter or the button). F9 or F10 load the quicksave or autosave instead if you prefer.
+
 Saving: L opens the save slots (autosave, quicksave and five numbered slots, with day and colonist count; overwriting asks twice). F5 quick save, F9 quick load, F10 load autosave. Autosaves every 2 minutes and on exit; the game
 continues from the autosave on launch (`-new` for a fresh world). Saves live in your user config dir
 (`~/.config/landfall` on Linux, `%AppData%\landfall` on Windows). `go test` checks the save/load round trip.

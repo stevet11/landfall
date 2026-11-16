@@ -188,6 +188,11 @@ func (g *Game) Update() error {
 		g.msgs = g.msgs[1:]
 	}
 
+	if g.over {
+		g.updateGameOver()
+		return nil
+	}
+
 	if g.panel != panelTrade {
 		g.sellRows, g.buyRows = nil, nil // the next visit lists afresh
 	}
@@ -519,6 +524,7 @@ func (g *Game) drawUI(dst *ebiten.Image) {
 	g.drawTraderBanner(dst)
 	g.drawRaidBanner(dst)
 	g.drawPanels(dst)
+	g.drawGameOver(dst)
 
 	if g.showHelp {
 		lines := []string{
