@@ -1,0 +1,7 @@
+craft
+craft.exe
+*.test
+*.sav
+*.png
+*.xwd
+*.wav
