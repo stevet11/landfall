@@ -7,3 +7,4 @@ craft.exe
 *.png
 *.xwd
 *.wav
+!docs/screenshots/*.png
